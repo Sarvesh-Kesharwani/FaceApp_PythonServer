@@ -19,7 +19,7 @@ BufferedReader = autoclass("java.io.BufferedReader")
 InputStreamReader = autoclass("java.io.InputStreamReader")
 
 
-HOST = "192.168.43.215"
+HOST = "192.168.43.205"
 Port = 1234
 
 server = ServerSocket(Port)
@@ -36,7 +36,7 @@ br = BufferedReader(isr)
 #reading name_length
 buff = []
 while True:
-    br.read(buff, 0, 1)
+    buff = br.read() # replace this line with code_to_read_one-one byte
     if buff != "$":
         print(buff)
     else:
