@@ -6,3 +6,94 @@
         full_byte_string.append(part)
     print("Recieved Full String.")
     """
+
+
+#now recieve photo_image
+    #photo_bytes = clientsocket.recv(int(photo_length_string))
+
+    full_byte_string = []
+    while True:
+        print("Recieving Bytes...")
+        part = clientsocket.recv(1)
+        full_byte_string.append(part)
+    print("Recieved Full String.")
+
+    photo_byte_array = np.array(full_byte_string)#####
+
+    if not photo_bytes:
+        print("PhotoByteArray is Empty!")
+    else:
+        print("Photo Image was Successfully Recieved.")
+        print("Recieved Photo_Image is :"+str(photo_bytes))
+        print("photobytes is of type: "+str(type(photo_bytes)))
+        width = 500
+        height = 333
+        image = Image.frombytes("RGBA", (height, width), photo_byte_array )
+        image.save("test.jpeg")
+
+
+
+
+
+        ***************************************************
+        #revieve photo's length
+
+    photo_length_list = []
+    while True:
+        temp = clientsocket.recv(1).decode()
+        if temp:
+            if temp != 'E':
+                photo_length_list.append(temp)
+            else:
+                print(temp)
+                break
+        else:
+            print("Recieved Photo Length is empty!")
+
+    #convert recieved 1-1 set of bytes into single string
+    #which is nothing but length of photo_image
+    print(str(photo_length_list))
+    photo_length_string = ''.join(photo_length_list)
+    print("PhotoLength is: "+ photo_length_string)
+#########################################################
+
+
+
+    #convert photo bytes to image
+   # with open("image.jpeg", "wb") as img:
+      #  img.write(photo_bytes)
+    #message = clientsocket.recv(1024).decode()
+    #clientsocket.send(bytes("Welcome to the server!", "utf-8"))
+*************************************************************
+
+
+
+
+
+
+
+
+bytesRead = 0
+length = 0
+buffer = []
+baos = BAOS()
+while length < photo_length:
+    bytesRead = inn.read(buffer, 0, photo_length)  #int(Math.min(len(buffer), photo_length-length)
+    length += bytesRead
+    baos.write(buffer, 0, bytesRead)
+    print("Writing to Stream...")
+
+byteArray = np.array(baos.toByteArray())
+fileName = "ReceivedFile"
+file = File(fileName+str(Math.random()*500)+".jpg")
+if not file:
+    file.createNewFile()
+
+fos = FileOutputStream(file)
+fos.write(byteArray)
+fos.close()
+System.out.println("Image Received")
+socket.close()
+inn.close()
+
+
