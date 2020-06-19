@@ -1,0 +1,8 @@
+ """
+    full_byte_string = []
+    while True:
+        print("Recieving Bytes...")
+        part = clientsocket.recv(1)
+        full_byte_string.append(part)
+    print("Recieved Full String.")
+    """
