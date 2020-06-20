@@ -101,3 +101,26 @@ inn.close()
 InputStream in = s.getInputStream();
                 in.read();
 #########################################
+
+
+
+#########################################
+#reading name in pyjnius
+isr = InputStreamReader(s.getInputStream())
+br = BufferedReader(isr) #use a streamreader which reads data in bytes
+
+#reading name
+innn = s.getInputStream()
+
+buff = [1]
+while True:
+    innn.read(buff, 0, 1)# replace this line with code_to_read_one-one byte
+    if buff != "#$":
+        temp = np.array(buff)
+        print(temp)
+    else:
+        break
+
+name_string = np.array(buff)
+print("Name is:"+name_string)
+#########################################

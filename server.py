@@ -20,10 +20,4 @@ while True:
     name = clientsocket.recv(int(name_length)).decode()
     print("Name is :" +name)
 
-    #*******************************************
-    DOS = autoclass("java.io.DataOutputStream")
-    
-    dos = DOS(s.)
-    photo_length = dos.readInt();
-    print(photo_length)
 

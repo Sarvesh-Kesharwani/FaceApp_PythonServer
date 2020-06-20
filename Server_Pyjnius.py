@@ -20,6 +20,40 @@ BufferedReader = autoclass("java.io.BufferedReader")
 InputStreamReader = autoclass("java.io.InputStreamReader")
 Array = autoclass("java.lang.reflect.Array")
 
+
+#Reading name in pure python
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(("192.168.43.205", 1234))
+s.listen(999)
+print("socket is listening...")
+
+clientsocket, address = s.accept()
+print(f"Connection from {address} has been established!")
+
+#reads first 2 bytes for name's length in bytes
+name_length = clientsocket.recv(2).decode()
+print("Name_length is:"+ name_length)
+#recieve name
+name = clientsocket.recv(int(name_length)).decode()
+print("Name is :" +name)
+
+
+#reading photo length
+photo_length_list = []
+
+while True:
+    tempbyte = clientsocket.recv(1)
+    print(tempbyte)
+    if tempbyte != '$':
+        photo_length_list.append(tempbyte)
+    else:
+        break
+photo_length = np.array(photo_length_list)
+print("Photo_length is :"+photo_length)
+clientsocket.close()
+s.close()
+#################################################################################
+#Reading Photo in Pyjnius
 HOST = "192.168.43.205"
 Port = 1234
 
@@ -31,28 +65,10 @@ print("Client accepted")
 
 bis = BIS(s.getInputStream())
 inn = DOS(bis)
-
-isr = InputStreamReader(s.getInputStream())
-br = BufferedReader(isr) #use a streamreader which reads data in bytes
-
-#reading name
-innn = s.getInputStream()
-
-buff = [1]
-while True:
-    innn.read(buff, 0, 1)# replace this line with code_to_read_one-one byte
-    if buff != "#$":
-        temp = np.array(buff)
-        print(temp)
-    else:
-        break
-
-name_string = np.array(buff)
-print("Name is:"+name_string)
-
 #reading photo size
-photo_length = inn.readInt()
-System.out.println("Got the Size")
+#photo_length = inn.readInt()
+
+print("Photo Size is:"+str(photo_length))
 #image_array length was read in photo_length.
 
 bytesRead = 0
