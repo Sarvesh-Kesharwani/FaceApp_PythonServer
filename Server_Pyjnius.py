@@ -11,13 +11,14 @@ System = autoclass("java.lang.System")
 ServerSocket = autoclass("java.net.ServerSocket")
 BIS = autoclass("java.io.BufferedInputStream")
 BAOS = autoclass("java.io.ByteArrayOutputStream")
+BAIS = autoclass("java.io.ByteArrayInputStream")
 Math = autoclass("java.lang.Math")
 File = autoclass("java.io.File")
 FileOutputStream = autoclass("java.io.FileOutputStream")
 InputStream = autoclass("java.io.InputStream")
 BufferedReader = autoclass("java.io.BufferedReader")
 InputStreamReader = autoclass("java.io.InputStreamReader")
-
+Array = autoclass("java.lang.reflect.Array")
 
 HOST = "192.168.43.205"
 Port = 1234
@@ -32,22 +33,22 @@ bis = BIS(s.getInputStream())
 inn = DOS(bis)
 
 isr = InputStreamReader(s.getInputStream())
-br = BufferedReader(isr)
-#reading name_length
-buff = []
+br = BufferedReader(isr) #use a streamreader which reads data in bytes
+
+#reading name
+innn = s.getInputStream()
+
+buff = [1]
 while True:
-    buff = br.read() # replace this line with code_to_read_one-one byte
-    if buff != "$":
-        print(buff)
+    innn.read(buff, 0, 1)# replace this line with code_to_read_one-one byte
+    if buff != "#$":
+        temp = np.array(buff)
+        print(temp)
     else:
         break
-name_length = np.array(buff)
-print(name_length.tostring())
-#reading name
-name = []
-inn.read(name, 0, name_length)
-name_string = np.array(name)
-print(name_string)
+
+name_string = np.array(buff)
+print("Name is:"+name_string)
 
 #reading photo size
 photo_length = inn.readInt()

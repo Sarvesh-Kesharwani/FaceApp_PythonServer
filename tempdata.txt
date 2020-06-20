@@ -97,3 +97,7 @@ socket.close()
 inn.close()
 
 
+########################################
+InputStream in = s.getInputStream();
+                in.read();
+#########################################
