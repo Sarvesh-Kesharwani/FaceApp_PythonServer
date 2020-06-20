@@ -1,17 +1,12 @@
-import face_recognition
-import docopt
+import face_recognition_models
 import os
 import pickle
 
-def TakeSamples(dir):
+def TakeSamples(dir,person):
 
     all_face_encodings = {}
-
-    if dir[-1] != '/':
-        dir += '/'
     face = face_recognition.load_image_file(dir)
-
-    #calculate no of face in sample-image
+    #calculate no. of face in sample-image
     face_bounding_boxes = face_recognition.face_locations(face)
     no_of_faces = len(face_bounding_boxes)
 
@@ -20,7 +15,7 @@ def TakeSamples(dir):
     else:
         print(person + "_img contains multiple faces!")
 
-    with open('dataset_faces.dat', 'wb') as f:
+    with open('dataset_faces.dat', 'a+') as f:
         pickle.dump(all_face_encodings, f)
 
 

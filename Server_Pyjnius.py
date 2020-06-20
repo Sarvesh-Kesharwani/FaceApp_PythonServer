@@ -85,14 +85,8 @@ print(tempbytesarray)
 print(type(tempbytesarray))
 #print(type(tempbytes))
 
-def convert_string_to_bytes(string):
-    bytes = b''
-    for i in string:
-        bytes += struct.pack("B", ord(i))
-    return bytes
 
 stream = BytesIO(tempbytesarray)
-#stream = BytesIO(convert_string_to_bytes(tempbytes))
 
 image = Image.open(stream).convert("RGBA")
 stream.close()
@@ -104,50 +98,3 @@ image.save('out.png')
 
 
 
-'''
-#################################################################################1st pyjnius socket connection.
-#photo length is available in photo_length_int var.
-#Reading Photo in Pyjnius
-
-#making connection
-HOST = "192.168.43.205"
-Port = 1234
-
-server = ServerSocket(Port)
-System.out.println("Server started")
-System.out.println("Waiting for a client ...")
-socket = server.accept()
-print("Client accepted")
-#connection made
-
-#pouring connection input stream into datainputstream
-bis = BIS(socket.getInputStream())
-dos = DOS(bis)
-#Reading photo from dataipnutstream
-bytesRead = 0
-length = 0
-buffer = []
-buffer_length = 8192
-baos = BAOS()
-
-print("Reading Photo From Stream...")
-while length < photo_length_int:
-    bytesRead = dos.read(buffer, 0, int(Math.min(buffer_length, photo_length_int-length)))
-    length += bytesRead
-    #baos.write(buffer, 0, bytesRead)
-    print("...")
-
-byteArray = baos.toByteArray()
-fileName = "MyFirstReceivedFile"
-file = File(fileName+str(Math.random()*500)+".jpg")
-if not file:
-    file.createNewFile()
-
-fos = FileOutputStream(file)
-fos.write(byteArray)
-fos.close()
-print("Image Received")
-s.close()
-
-
-'''
