@@ -30,7 +30,7 @@ Array = autoclass("java.lang.reflect.Array")
 #Reading name in pure python
 ############################################################1st python's socket connection.
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("192.168.43.215", 1234))
+s.bind(("192.168.43.205", 1234))
 s.listen(999)
 print("socket is listening...")
 
@@ -47,53 +47,69 @@ clientsocket.close()
 ################################################################2nd python's socket connection.
 s.listen(999)
 print("socket is listening...")
-
 clientsocket, address = s.accept()
 print(f"Connection from {address} has been established!")
 
-#reading photo length
-photo_length_list = []
-while True:
-    tempbyte = clientsocket.recv(1).decode()
-    print(tempbyte)
-    if tempbyte != '$':
-        photo_length_list.append(tempbyte)
-    else:
-        break
-photo_length = np.array(photo_length_list)
-photo_length_string = ''.join(photo_length)
-photo_length_int = int(photo_length_string)
-print("Photo_length is :"+photo_length_string)
-clientsocket.close()
+#clientsocket.close()
 #s.close()
 
 
+def recievePhoto():
+    # reading photo length
+    s.listen(999)
+    print("socket is listening...")
 
-################################################################3rd python's socket connection.
-s.listen(999)
-print("socket is listening...")
-clientsocket, address = s.accept()
-print(f"Connection from {address} has been established!")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
 
-i=1
-tempbytes = []
-while i != 194:
-    tempbytes.append(clientsocket.recv(259))
-    i += 1
-#print(tempbytes)
-tempbytesarray = np.array(tempbytes)
-print(tempbytesarray)
-print(type(tempbytesarray))
-#print(type(tempbytes))
+    photo_length_list = []
+    while True:
+        tempbyte = clientsocket.recv(1).decode()
+        print(tempbyte)
+        if tempbyte != '$':
+            photo_length_list.append(tempbyte)
+        else:
+            break
+    photo_length = np.array(photo_length_list)
+    photo_length_string = ''.join(photo_length)
+    photo_length_int = int(photo_length_string)
+    print("Photo_length is :" + photo_length_string)
+    clientsocket.close()
+    # s.close()
+
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    i = 1
+    tempbytes = []
+    while i != 194:
+        tempbytes.append(clientsocket.recv(259))
+        i += 1
+    # print(tempbytes)
+    tempbytesarray = np.array(tempbytes)
+    print(tempbytesarray)
+    print(type(tempbytesarray))
+    # print(type(tempbytes))
+
+    stream = BytesIO(tempbytesarray)
+
+    image = Image.open(stream).convert("RGBA")
+    stream.close()
+    image.save('out.png')
+    clientsocket.close()
 
 
-stream = BytesIO(tempbytesarray)
 
-image = Image.open(stream).convert("RGBA")
-stream.close()
-image.save('out.png')
-clientsocket.close()
-#s.close()
+
+
+
+
+
+
+
+
 
 #####################################################Listning for Database_operation
 #move this set of code to top most and modify app's for sending  the "op" byte first.
