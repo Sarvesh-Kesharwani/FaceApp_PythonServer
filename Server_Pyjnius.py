@@ -1,7 +1,8 @@
+import pickle
 import socket
 import io
 import struct
-
+import shelve
 from PIL import Image
 import bitmap
 import numpy as np
@@ -91,6 +92,68 @@ stream = BytesIO(tempbytesarray)
 image = Image.open(stream).convert("RGBA")
 stream.close()
 image.save('out.png')
+clientsocket.close()
+#s.close()
+
+#####################################################Listning for Database_operation
+#move this set of code to top most and modify app's for sending  the "op" byte first.
+def SelectOp(op):
+    switcher = {
+        1: "APPEND",
+        2: "DELETE",
+    }
+    return(switcher.get(op, "INVALID_OP!"))
+
+def DeletePerson(name):
+    d = shelve.open("dataset_faces.dat")
+    print(d[name])
+
+
+def modifyDatabase(op):
+    while True:
+        s.listen(999)
+        print("socket is listening...")
+        clientsocket, address = s.accept()
+        print(f"Connection from {address} has been established!")
+
+        received_op = clientsocket.recv(1).decode()
+
+        if SelectOp(received_op) == "APPEND":
+            with open('dataset_faces.dat', 'a+') as f:
+                #bake face_encoding with photo and name
+                #save it into face_encoding
+                #and store it using below line
+                #using code in TakeSamples.py in ubuntu
+
+                #or just append incoming face_encoding from iputerstream
+                pickle.dump(face_encoding, f)
+
+        if SelectOp(received_op) == "DELETE":
+            DeletePerson()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
