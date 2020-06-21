@@ -119,10 +119,11 @@ def DeletePerson(name):
         all_face_encodings.pop(name)
         print(str(all_face_encodings))
 
-        with open('temp_dataset_faces.dat', 'wb') as f1:
+        with open('dataset_faces.dat', 'wb') as f1:
             pickle.dump(all_face_encodings, f1)
 
-        with open('temp_dataset_faces.dat', 'rb') as f2:
+        '''
+        with open('dataset_faces.dat', 'rb') as f2:
             try:
                 while True:
                     temp_face_encodings = pickle.load(f2)
@@ -130,6 +131,7 @@ def DeletePerson(name):
 
             except EOFError:
                 pass
+        '''
 
 #Example:
 #DeletePerson('madhavi')
