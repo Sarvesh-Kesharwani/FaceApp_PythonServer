@@ -9,7 +9,7 @@ arr = np.array([
 print(arr)
 arr = arr.tolist()
 print(arr)
-arr.pop(1)
+arr.pop(0)
 print(arr)
 arr = np.array(arr)
 print(arr)
