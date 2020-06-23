@@ -1,15 +1,16 @@
-import pickle
-import socket
-import io
-import struct
-import shelve
+import null
 from PIL import Image
-import bitmap
 import numpy as np
 from jnius import autoclass
-import sys
-from io import StringIO
 from io import BytesIO
+from io import StringIO
+import pickle
+import socket
+import bitmap
+import io
+import sys
+from numpy import byte
+
 
 Socket = autoclass("java.net.Socket")
 DOS = autoclass("java.io.DataInputStream")
@@ -25,7 +26,8 @@ InputStream = autoclass("java.io.InputStream")
 BufferedReader = autoclass("java.io.BufferedReader")
 InputStreamReader = autoclass("java.io.InputStreamReader")
 Array = autoclass("java.lang.reflect.Array")
-
+DataInputStream = autoclass("java.io.DataInputStream")
+Integer = autoclass("java.lang.Integer")
 
 #Reading name in pure python
 ############################################################1st python's socket connection.
@@ -33,7 +35,6 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("192.168.43.205", 1234))
 s.listen(999)
 print("socket is listening...")
-
 clientsocket, address = s.accept()
 print(f"Connection from {address} has been established!")
 
@@ -49,16 +50,67 @@ s.listen(999)
 print("socket is listening...")
 clientsocket, address = s.accept()
 print(f"Connection from {address} has been established!")
+# reading photo length
+
+photo_length_list = []
+while True:
+    tempbyte = clientsocket.recv(1).decode()
+    print(tempbyte)
+    if tempbyte != '$':
+        photo_length_list.append(tempbyte)
+    else:
+        break
+photo_length = np.array(photo_length_list)
+photo_length_string = ''.join(photo_length)
+photo_length_int = int(photo_length_string)
+print("Photo_length is :" + photo_length_string)
+clientsocket.close()
+# s.close()
+################################################################3rd python's socket connection.
+s.listen(999)
+print("socket is listening...")
+clientsocket, address = s.accept()
+print(f"Connection from {address} has been established!")
+
+sin  = s.getInputStream()
+sout = s.getOutputStream()
+inn = DataInputStream(sin)
+insr = InputStreamReader(socket.getInputStream())
+mBufferIn = BufferedReader(insr)
+
+while True:
+    mServerMessage = mBufferIn.readLine()
+    if mServerMessage != null:
+        # Check if data is image
+        if mServerMessage.equals("?start"):
+            print("?start was recieved:...")
+            # Get length of image byte array
+            size = Integer.parseInt(mBufferIn.readLine())
+            print("new_photo_size is:"+size)
+            # Create buffers
+            msg_buff = byte[1024]
+            img_buff = byte[photo_length_int]
+            img_offset = 0
+            while True:
+                bytes_read = inn.read(msg_buff, 0, msg_buff.length)
+                if bytes_read == -1:
+                    break
+                # copy bytes into img_buff
+                System.arraycopy(msg_buff, 0, img_buff, img_offset, bytes_read)
+                img_offset += bytes_read
+                if img_offset >= photo_length_int:
+                    break
+            im = Image.open(StringIO(img_buff))
+            im.save("recievedImage.png")
+
 
 #clientsocket.close()
 #s.close()
-
 
 def recievePhoto():
     # reading photo length
     s.listen(999)
     print("socket is listening...")
-
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
