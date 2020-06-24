@@ -28,6 +28,9 @@ InputStreamReader = autoclass("java.io.InputStreamReader")
 Array = autoclass("java.lang.reflect.Array")
 DataInputStream = autoclass("java.io.DataInputStream")
 Integer = autoclass("java.lang.Integer")
+Array = autoclass("java.util.Arrays")
+
+
 
 IP = "192.168.43.205"
 Port = 1998
@@ -89,40 +92,39 @@ while True:
         if mServerMessage == "?start":
             print("?start was recieved:...")
             # Get length of image byte array
-
-            #size = Integer.parseInt(mBufferIn.readLine())
-            #print("new_photo_size is:"+size)
+            size = int(mBufferIn.readLine())
+            print("new_photo_size is:"+str(size))
 
             # Create buffers
             # Reading photo from dataipnutstream
             bytesRead = 0
             length = 0
             buffer = []
-            buffer_length = 1024
+            buffer_length = 61359
             baos = BAOS()
 
             print("Reading Photo From Stream...")
-            while length < photo_length_int:
-                print(Math.min(buffer_length, (photo_length_int-length)))
-                bytesRead = dis.read(buffer, 0, Math.min(buffer_length, (photo_length_int-length)))
-                length += bytesRead
-                # baos.write(buffer, 0, bytesRead)
-                print("...")
+            print("Image is : ")
+            print(type(mBufferIn.readLine()))
 
-            byteArray = baos.toByteArray()
+            byte1 = mBufferIn.readLine()
+            byte2 = bytes(byte1, 'utf-8')
+            print("byte2 type is:"+str(type(byte2)))
+
+            #byteArray = baos.toByteArray()
             fileName = "MyFirstReceivedFile"
-            file = File(fileName + str(Math.random() * 500) + ".jpg")
+            file = File(fileName + str(Math.random() * 500) + ".png")
             if not file:
                 file.createNewFile()
 
             fos = FileOutputStream(file)
-            fos.write(byteArray)
+            fos.write(byte2)
             fos.close()
             print("Image Received")
             #im = Image.open(StringIO(img_buff))
             #im.save("recievedImage.png")
-        else:
-            print("Not equal to ?start....")
+        #else:
+            #print("Not equal to ?start....")
     else:
         print("message is empty....")
 
