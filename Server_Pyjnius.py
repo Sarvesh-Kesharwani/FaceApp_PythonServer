@@ -1,16 +1,11 @@
-import null
-from PIL import Image
+import struct
+
 import numpy as np
 from jnius import autoclass
-from io import BytesIO
-from io import StringIO
 import pickle
 import socket
-import bitmap
-import io
-import sys
-from numpy import byte
 
+from numpy import byte
 
 Socket = autoclass("java.net.Socket")
 DOS = autoclass("java.io.DataInputStream")
@@ -28,225 +23,12 @@ InputStreamReader = autoclass("java.io.InputStreamReader")
 Array = autoclass("java.lang.reflect.Array")
 DataInputStream = autoclass("java.io.DataInputStream")
 Integer = autoclass("java.lang.Integer")
-Array = autoclass("java.util.Arrays")
 
-
-
+#Creating Common Connection Settings for all Connection made in this script.
 IP = "192.168.43.205"
 Port = 1998
-#Reading name in pure python
-############################################################1st python's socket connection.
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
-s.listen(999)
-print("socket is listening...")
-clientsocket, address = s.accept()
-print(f"Connection from {address} has been established!")
-
-#reads first 2 bytes for name's length in bytes
-name_length = clientsocket.recv(2).decode()
-print("Name_length is:"+ name_length)
-#recieve name
-name = clientsocket.recv(int(name_length)).decode()
-print("Name is :" +name)
-clientsocket.close()
-################################################################2nd python's socket connection.
-s.listen(999)
-print("socket is listening...")
-clientsocket, address = s.accept()
-print(f"Connection from {address} has been established!")
-# reading photo length
-
-photo_length_list = []
-while True:
-    tempbyte = clientsocket.recv(1).decode()
-    print(tempbyte)
-    if tempbyte != '$':
-        photo_length_list.append(tempbyte)
-    else:
-        break
-photo_length = np.array(photo_length_list)
-photo_length_string = ''.join(photo_length)
-photo_length_int = int(photo_length_string)
-print("Photo_length is :" + photo_length_string)
-clientsocket.close()
-#s.close()
-################################################################3rd python's socket connection.
-s.listen(999)
-print("socket is listening...")
-clientsocket, address = s.accept()
-print(f"Connection from {address} has been established!")
-
-# reading photo
-Completedata = null
-length = 0
-with open('image.png', 'wb') as f:
-    while length < photo_length_int:
-        bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
-        length += len(bytes)
-        f.write(bytes)
-        print("...")
-f.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-
-server = ServerSocket(Port)
-System.out.println("Server started")
-System.out.println("Waiting for a client ...")
-socket = server.accept()
-System.out.println("Client accepted")
-
-sin  = socket.getInputStream()
-sout = socket.getOutputStream()
-dis = DataInputStream(sin)
-insr = InputStreamReader(socket.getInputStream())
-mBufferIn = BufferedReader(insr)
-
-while True:
-    mServerMessage = mBufferIn.readLine()
-    if mServerMessage != null:
-        # Check if data is image
-        #print(mServerMessage)
-        if mServerMessage == "?start":
-            print("?start was recieved:...")
-            # Get length of image byte array
-            size = int(mBufferIn.readLine())
-            print("new_photo_size is:"+str(size))
-
-            # Create buffers
-            # Reading photo from dataipnutstream
-            bytesRead = 0
-            length = 0
-            buffer = []
-            buffer_length = 1024
-            baos = BAOS()
-
-            print("Reading Photo From Stream...")
-            print("Image is : ")
-            #print(type(mBufferIn.readLine()))
-
-            while length < photo_length_int:
-                print("Remaining bytes to fetch is: " + str(Math.min(buffer_length, (photo_length_int - length))))
-                bytesRead = mBufferIn.read(buffer, 0, Math.min(buffer_length, (photo_length_int - length)))
-                length += bytesRead
-                # baos.write(buffer, 0, bytesRead)
-                print("...")
-
-            byte1 = mBufferIn.readLine()
-            byte2 = bytes(byte1, 'utf-8')
-            print("byte2 type is:"+str(type(byte2)))
-
-            fileName = "MyFirstReceivedFile"
-            file = File(fileName + str(Math.random() * 500) + ".png")
-            if not file:
-                file.createNewFile()
-
-            fos = FileOutputStream(file)
-            fos.write(byte2)
-            fos.close()
-            print("Image Received")
-            #im = Image.open(StringIO(img_buff))
-            #im.save("recievedImage.png")
-        #else:
-            #print("Not equal to ?start....")
-    else:
-        print("message is empty....")
-
-#socket.close()
-#server.close()
-"""
-
-
-
-
-
-
-
-
-
-def recievePhoto():
-    # reading photo length
-    s.listen(999)
-    print("socket is listening...")
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
-
-    photo_length_list = []
-    while True:
-        tempbyte = clientsocket.recv(1).decode()
-        print(tempbyte)
-        if tempbyte != '$':
-            photo_length_list.append(tempbyte)
-        else:
-            break
-    photo_length = np.array(photo_length_list)
-    photo_length_string = ''.join(photo_length)
-    photo_length_int = int(photo_length_string)
-    print("Photo_length is :" + photo_length_string)
-    clientsocket.close()
-    # s.close()
-
-    s.listen(999)
-    print("socket is listening...")
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
-
-    i = 1
-    tempbytes = []
-    while i != 194:
-        tempbytes.append(clientsocket.recv(259))
-        i += 1
-    # print(tempbytes)
-    tempbytesarray = np.array(tempbytes)
-    print(tempbytesarray)
-    print(type(tempbytesarray))
-    # print(type(tempbytes))
-
-    stream = BytesIO(tempbytesarray)
-
-    image = Image.open(stream).convert("RGBA")
-    stream.close()
-    image.save('out.png')
-    clientsocket.close()
-
-
-
-
-
-
-
-
-
-
-
 
 #####################################################Listning for Database_operation
 #move this set of code to top most and modify app's for sending  the "op" byte first.
@@ -258,8 +40,6 @@ def SelectOp(op):
     return(switcher.get(op, "INVALID_OP!"))
 
 def DeletePerson(name):
-    import pickle
-    import numpy as np
 
     def DeletePerson(name):
         with open('dataset_faces.dat', 'rb') as f:
@@ -285,10 +65,8 @@ def DeletePerson(name):
             except EOFError:
                 pass
         '''
-
-#Example:
-#DeletePerson('madhavi')
-
+        # Example:
+        # DeletePerson('madhavi')
 
 def modifyDatabase(op):
     while True:
@@ -311,6 +89,95 @@ def modifyDatabase(op):
 
         if SelectOp(received_op) == "DELETE":
             DeletePerson()
+
+#File Transfer
+def ReciveName():
+    # Reading name in pure python
+    ############################################################1st python's socket connection.
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    # reads first 2 bytes for name's length in bytes
+    name_length = clientsocket.recv(2).decode()
+    print("Name_length is:" + name_length)
+    # recieve name
+    name = clientsocket.recv(int(name_length)).decode()
+    print("Name is :" + name)
+    clientsocket.close()
+    ################################################################2nd python's socket connection.
+
+def RecievePhoto():
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    # reading photo length
+    photo_length_list = []
+    while True:
+        tempbyte = clientsocket.recv(1).decode()
+        print(tempbyte)
+        if tempbyte != '$':
+            photo_length_list.append(tempbyte)
+        else:
+            break
+    photo_length = np.array(photo_length_list)
+    photo_length_string = ''.join(photo_length)
+    photo_length_int = int(photo_length_string)
+    print("Photo_length is :" + photo_length_string)
+    clientsocket.close()
+    ################################################################3rd python's socket connection.
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    # reading photo
+    length = 0
+    with open('image.png', 'wb') as f:
+        while length < photo_length_int:
+            bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
+            length += len(bytes)
+            f.write(bytes)
+    f.close()
+    clientsocket.close()
+    #s.close()
+
+def SendName(name):
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    #convert name_string into name_bytes
+    name_bytes = bytearray()
+    name_bytes.extend(map(ord, name))
+
+    # send name_size
+
+
+    #send name
+    clientsocket.send(name_bytes)
+    print("Name Was Sent Succesfully!")
+
+
+
+ReciveName()
+RecievePhoto()
+SendName("sarvesh")
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,12 @@
+nameSize_byte = bytearray()
+    nameSize_byte.extend(map(ord, name))
+    clientsocket.send(byte(nameSize_byte))
+
+
+
+
+    nameSize = len(name)
+    nameSize_bytes = bytearray()
+    nameSize_bytes.extend(map(ord, str(nameSize)))
+    print("NameSizeBytesLength is : "+str(nameSize_bytes))
+    clientsocket.send(nameSize_bytes)
