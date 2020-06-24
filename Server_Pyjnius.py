@@ -29,10 +29,12 @@ Array = autoclass("java.lang.reflect.Array")
 DataInputStream = autoclass("java.io.DataInputStream")
 Integer = autoclass("java.lang.Integer")
 
+IP = "192.168.43.205"
+Port = 1998
 #Reading name in pure python
 ############################################################1st python's socket connection.
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("192.168.43.205", 1234))
+s.bind((IP, Port))
 s.listen(999)
 print("socket is listening...")
 clientsocket, address = s.accept()
@@ -65,16 +67,17 @@ photo_length_string = ''.join(photo_length)
 photo_length_int = int(photo_length_string)
 print("Photo_length is :" + photo_length_string)
 clientsocket.close()
-# s.close()
+s.close()
 ################################################################3rd python's socket connection.
-s.listen(999)
-print("socket is listening...")
-clientsocket, address = s.accept()
-print(f"Connection from {address} has been established!")
+server = ServerSocket(Port)
+System.out.println("Server started")
+System.out.println("Waiting for a client ...")
+socket = server.accept()
+System.out.println("Client accepted")
 
-sin  = s.getInputStream()
-sout = s.getOutputStream()
-inn = DataInputStream(sin)
+sin  = socket.getInputStream()
+sout = socket.getOutputStream()
+dis = DataInputStream(sin)
 insr = InputStreamReader(socket.getInputStream())
 mBufferIn = BufferedReader(insr)
 
@@ -82,30 +85,58 @@ while True:
     mServerMessage = mBufferIn.readLine()
     if mServerMessage != null:
         # Check if data is image
-        if mServerMessage.equals("?start"):
+        #print(mServerMessage)
+        if mServerMessage == "?start":
             print("?start was recieved:...")
             # Get length of image byte array
-            size = Integer.parseInt(mBufferIn.readLine())
-            print("new_photo_size is:"+size)
+
+            #size = Integer.parseInt(mBufferIn.readLine())
+            #print("new_photo_size is:"+size)
+
             # Create buffers
-            msg_buff = byte[1024]
-            img_buff = byte[photo_length_int]
-            img_offset = 0
-            while True:
-                bytes_read = inn.read(msg_buff, 0, msg_buff.length)
-                if bytes_read == -1:
-                    break
-                # copy bytes into img_buff
-                System.arraycopy(msg_buff, 0, img_buff, img_offset, bytes_read)
-                img_offset += bytes_read
-                if img_offset >= photo_length_int:
-                    break
-            im = Image.open(StringIO(img_buff))
-            im.save("recievedImage.png")
+            # Reading photo from dataipnutstream
+            bytesRead = 0
+            length = 0
+            buffer = []
+            buffer_length = 1024
+            baos = BAOS()
+
+            print("Reading Photo From Stream...")
+            while length < photo_length_int:
+                print(Math.min(buffer_length, (photo_length_int-length)))
+                bytesRead = dis.read(buffer, 0, Math.min(buffer_length, (photo_length_int-length)))
+                length += bytesRead
+                # baos.write(buffer, 0, bytesRead)
+                print("...")
+
+            byteArray = baos.toByteArray()
+            fileName = "MyFirstReceivedFile"
+            file = File(fileName + str(Math.random() * 500) + ".jpg")
+            if not file:
+                file.createNewFile()
+
+            fos = FileOutputStream(file)
+            fos.write(byteArray)
+            fos.close()
+            print("Image Received")
+            #im = Image.open(StringIO(img_buff))
+            #im.save("recievedImage.png")
+        else:
+            print("Not equal to ?start....")
+    else:
+        print("message is empty....")
+
+#socket.close()
+#server.close()
 
 
-#clientsocket.close()
-#s.close()
+
+
+
+
+
+
+
 
 def recievePhoto():
     # reading photo length
