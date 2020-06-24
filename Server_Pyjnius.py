@@ -70,8 +70,54 @@ photo_length_string = ''.join(photo_length)
 photo_length_int = int(photo_length_string)
 print("Photo_length is :" + photo_length_string)
 clientsocket.close()
-s.close()
+#s.close()
 ################################################################3rd python's socket connection.
+s.listen(999)
+print("socket is listening...")
+clientsocket, address = s.accept()
+print(f"Connection from {address} has been established!")
+
+# reading photo
+Completedata = null
+length = 0
+with open('image.png', 'wb') as f:
+    while length < photo_length_int:
+        bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
+        length += len(bytes)
+        f.write(bytes)
+        print("...")
+f.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+
 server = ServerSocket(Port)
 System.out.println("Server started")
 System.out.println("Waiting for a client ...")
@@ -100,18 +146,24 @@ while True:
             bytesRead = 0
             length = 0
             buffer = []
-            buffer_length = 61359
+            buffer_length = 1024
             baos = BAOS()
 
             print("Reading Photo From Stream...")
             print("Image is : ")
-            print(type(mBufferIn.readLine()))
+            #print(type(mBufferIn.readLine()))
+
+            while length < photo_length_int:
+                print("Remaining bytes to fetch is: " + str(Math.min(buffer_length, (photo_length_int - length))))
+                bytesRead = mBufferIn.read(buffer, 0, Math.min(buffer_length, (photo_length_int - length)))
+                length += bytesRead
+                # baos.write(buffer, 0, bytesRead)
+                print("...")
 
             byte1 = mBufferIn.readLine()
             byte2 = bytes(byte1, 'utf-8')
             print("byte2 type is:"+str(type(byte2)))
 
-            #byteArray = baos.toByteArray()
             fileName = "MyFirstReceivedFile"
             file = File(fileName + str(Math.random() * 500) + ".png")
             if not file:
@@ -130,7 +182,7 @@ while True:
 
 #socket.close()
 #server.close()
-
+"""
 
 
 

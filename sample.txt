@@ -4,3 +4,30 @@ while length < photo_length_int:
                 length += bytesRead
                 # baos.write(buffer, 0, bytesRead)
                 print("...")
+
+
+
+
+
+
+
+
+
+                # Create buffers
+            # Reading photo from dataipnutstream
+            bytesRead = 0
+            length = 0
+            buffer = []
+            buffer_length = 1024
+            baos = BAOS()
+
+            print("Reading Photo From Stream...")
+            print("Image is : ")
+            #print(type(mBufferIn.readLine()))
+
+            while length < photo_length_int:
+                print("Remaining bytes to fetch is: " + str(Math.min(buffer_length, (photo_length_int - length))))
+                bytesRead = mBufferIn.read(buffer, 0, Math.min(buffer_length, (photo_length_int - length)))
+                length += bytesRead
+                # baos.write(buffer, 0, bytesRead)
+                print("...")
