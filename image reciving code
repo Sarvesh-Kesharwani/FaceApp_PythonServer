@@ -1,0 +1,15 @@
+i = 1
+tempbytes = []
+while i != 194:
+    tempbytes.append(clientsocket.recv(259))
+    i += 1
+# print(tempbytes)
+tempbytesarray = np.array(tempbytes)
+print(tempbytesarray)
+print(type(tempbytesarray))
+
+stream = BytesIO(tempbytesarray)
+
+image = Image.open(stream).convert("RGBA")
+stream.close()
+image.save('out.png')
