@@ -162,22 +162,46 @@ def SendName(name):
     #send image_delimeter
     clientsocket.sendall("?start\n".encode('utf-8'))
     #send image
-    with open("sample.jpg", 'rb') as imageFile:
-        content = imageFile.read()
-        imageSize = len(content)
-        print("ImageSize is:" + str(imageSize))
+    imageFile = open("face.jpg", 'rb')
+    Imagecontent = imageFile.read()
+    imageSize = len(Imagecontent)
+    print("ImageSize is:" + str(imageSize))
 
-        # send imageSize
-        imageSize_str = str(imageSize) + "\n"
-        clientsocket.sendall(imageSize_str.encode('utf-8'))
-        #send imageFile
-        clientsocket.sendall(content)
-        print("Image was sent succesfully.")
+    # send imageSize
+    imageSize_str = str(imageSize) + "\n"
+    clientsocket.sendall(imageSize_str.encode('utf-8'))
+    # send imageFile_delimeter
+    clientsocket.sendall("?imageFile\n".encode('utf-8'))
+    clientsocket.close()
+
+    #Creating new Connetion to send music
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+    print("Ready to receive Image....")
+
+    # send imageFile
+    clientsocket.sendall(Imagecontent)
+    print("Content type is :" + str(type(Imagecontent)))
+    print("Image File Content is : " + str(Imagecontent))
+    print("Image was sent succesfully.")
+
+
+
+
+
+
+
+
+
+
+
 
     #receive success ACK
-    message = clientsocket.recv(2)
-    if message == "ok":
-        print("ACK received.")
+   # message = clientsocket.recv(2)
+    #if message == "ok":
+     #   print("ACK received.")
 
 
 
