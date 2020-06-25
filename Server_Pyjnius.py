@@ -151,16 +151,33 @@ def SendName(name):
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
-    #convert name_string into name_bytes
-    name_bytes = bytearray()
-    name_bytes.extend(map(ord, name))
-
-    # send name_size
-
-
+    #send name_delimeter
+    clientsocket.sendall("?name\n".encode('utf-8'))
     #send name
-    clientsocket.send(name_bytes)
-    print("Name Was Sent Succesfully!")
+    name1 = name + "\n"
+    print("Name was sent succesfully.")
+    clientsocket.sendall(name1.encode('utf-8'))
+
+
+    #send image_delimeter
+    clientsocket.sendall("?start\n".encode('utf-8'))
+    #send image
+    with open("sample.jpg", 'rb') as imageFile:
+        content = imageFile.read()
+        imageSize = len(content)
+        print("ImageSize is:" + str(imageSize))
+
+        # send imageSize
+        imageSize_str = str(imageSize) + "\n"
+        clientsocket.sendall(imageSize_str.encode('utf-8'))
+        #send imageFile
+        clientsocket.sendall(content)
+        print("Image was sent succesfully.")
+
+    #receive success ACK
+    message = clientsocket.recv(2)
+    if message == "ok":
+        print("ACK received.")
 
 
 

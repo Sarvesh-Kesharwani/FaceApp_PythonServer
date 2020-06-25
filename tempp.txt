@@ -10,3 +10,28 @@ nameSize_byte = bytearray()
     nameSize_bytes.extend(map(ord, str(nameSize)))
     print("NameSizeBytesLength is : "+str(nameSize_bytes))
     clientsocket.send(nameSize_bytes)
+
+
+
+
+
+
+
+    #convert name_string into name_bytes
+    name_bytes = bytearray()
+    name_bytes.extend(map(ord, name))
+
+    # send name_size
+
+
+    #send name
+    clientsocket.send(name_bytes)
+    print("Name Was Sent Succesfully!")
+
+
+
+
+    #send nameSize
+    nameSize = len(name)
+    nameSize_str = str(nameSize) + "\n"
+    clientsocket.sendall(nameSize_str.encode('utf-8'))
