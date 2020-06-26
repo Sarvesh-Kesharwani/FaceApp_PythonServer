@@ -10,6 +10,7 @@ import pickle
 # Creating Common Connection Settings for all Connection made in this script.
 IP = "192.168.43.205"
 Port = 1998
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
 
@@ -166,6 +167,10 @@ def BakeFaceEncoding():
         return 0
     if no_of_faces == 1:
         face_encodings[person] = face_recognition.face_encodings(face)[0]
+
+        if not os.path.exists(DatabaseFile):
+            print("DatabaseFile not found creating it...")
+            os.mkdir(DatabaseFile)
         try:
             with open(DatabaseFile, 'a+') as f:
                 pickle.dump(face_encodings, f)
@@ -179,7 +184,7 @@ def BakeFaceEncoding():
 
 # File Transfer
 def RecieveNamePhoto():
-    print("Reading Name &Photo...")
+    print("Reading Name & Photo...")
     # Reading Op byte
     s.listen(999)
     print("socket is listening...")
