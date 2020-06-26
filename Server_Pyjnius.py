@@ -2,7 +2,7 @@ import numpy as np
 from jnius import autoclass
 import pickle
 import socket
-
+import os
 Socket = autoclass("java.net.Socket")
 DOS = autoclass("java.io.DataInputStream")
 System = autoclass("java.lang.System")
@@ -94,11 +94,13 @@ def Server():
 
 
 def BakeFaceEncoding():
-    name = ReciveName()
-    photoDir = RecievePhoto()
+    name, imageFile = RecieveNamePhoto()
+
+
+
 
 #File Transfer
-def ReciveName():
+def RecieveNamePhoto():
     # Reading name in pure python
     ############################################################1st python's socket connection.
     s.listen(999)
@@ -114,13 +116,7 @@ def ReciveName():
     print("Name is :" + name)
     clientsocket.close()
 
-    return name
-
-def RecievePhoto():
     ################################################################2nd python's socket connection.
-
-    name = ReciveName()
-
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
@@ -140,15 +136,21 @@ def RecievePhoto():
     photo_length_int = int(photo_length_string)
     print("Photo_length is :" + photo_length_string)
     clientsocket.close()
+
     ################################################################3rd python's socket connection.
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
+    imageDir = "Photos/"
+    if not os.path.exists(imageDir):
+        print("Dir not found creating dir...")
+        os.mkdir(imageDir)
+
     # reading photo
     length = 0
-    with open("Photos//"+name+".png", 'wb') as f:
+    with open(imageDir+name+".png", 'wb') as f:
         while length < photo_length_int:
             bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
             length += len(bytes)
@@ -156,6 +158,9 @@ def RecievePhoto():
     f.close()
     clientsocket.close()
     #s.close()
+
+    imageFile = imageDir+name+".png"
+    return name,imageFile
 
 def SendNamePhoto(name):
     s.listen(999)
@@ -202,25 +207,14 @@ def SendNamePhoto(name):
 
 
 
-
-
-
-
-
-
-
-
     #receive success ACK
    # message = clientsocket.recv(2)
     #if message == "ok":
      #   print("ACK received.")
 
-
-
-#ReciveName()
-#RecievePhoto()
+RecieveNamePhoto()
 #SendName("sarvesh")
-Server()
+#Server()
 
 
 
