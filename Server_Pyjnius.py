@@ -1,29 +1,11 @@
 import numpy as np
-from jnius import autoclass
 import pickle
 import socket
 import os
-
-# import face_recognition
+#import face_recognition
 import os
 import pickle
 
-Socket = autoclass("java.net.Socket")
-DOS = autoclass("java.io.DataInputStream")
-System = autoclass("java.lang.System")
-ServerSocket = autoclass("java.net.ServerSocket")
-BIS = autoclass("java.io.BufferedInputStream")
-BAOS = autoclass("java.io.ByteArrayOutputStream")
-BAIS = autoclass("java.io.ByteArrayInputStream")
-Math = autoclass("java.lang.Math")
-File = autoclass("java.io.File")
-FileOutputStream = autoclass("java.io.FileOutputStream")
-InputStream = autoclass("java.io.InputStream")
-BufferedReader = autoclass("java.io.BufferedReader")
-InputStreamReader = autoclass("java.io.InputStreamReader")
-Array = autoclass("java.lang.reflect.Array")
-DataInputStream = autoclass("java.io.DataInputStream")
-Integer = autoclass("java.lang.Integer")
 
 # Creating Common Connection Settings for all Connection made in this script.
 IP = "192.168.0.101"
@@ -31,6 +13,7 @@ Port = 1998
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
 
+#Resources Used:
 DatabaseFile = 'dataset_faces.dat'
 imageDir = "Photos/"
 
@@ -51,6 +34,7 @@ def Server():
 
     # Always looking to connections.
     while True:
+        print("Waiting for next operations...")
         clientsocket, address = s.accept()
         print("Server Connected With Client...")
 
@@ -60,17 +44,38 @@ def Server():
         # if operation is APPEND
         if SelectOp(received_op) == "APPEND":
             print("Append-Operation is being done...")
-            face_encodings = BakeFaceEncoding()
+            result = BakeFaceEncoding()
 
-            if not face_recognition:
+            if result == 3:
+                # it means user didn't ADD any person,
+                # just went to some other menu option so continue server loop
+                # for listning to next operation sent by user.
                 continue
-            with open(DatabaseFile, 'a+') as f:
-                pickle.dump(face_encodings, f)
+            if result == -1:
+                clientsocket.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                continue
+            if result == 0:
+                clientsocket.sendall("Database-Resource is not available!\n".encode('utf-8'))
+                continue
+            if result == 1:
+                clientsocket.sendall("Person Added Successfully.\n".encode('utf-8'))
+                continue
+            if result == 2:
+                clientsocket.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                continue
 
         # if operation is DELETE
         if SelectOp(received_op) == "DELETE":
             print("Delete-Operation is being done...")
-            DeleteOP()
+            result = DeleteOP()
+
+            if result == -1:
+                clientsocket.sendall("Database-Resource is not available!\n".encode('utf-8'))
+                continue
+            if result == 1:
+                clientsocket.sendall("Person Removed Successfully.\n".encode('utf-8'))
+                print("Delete-Operation is done successfully.")
+                continue
 
         # close operation clientsocket.
         clientsocket.close()
@@ -111,13 +116,15 @@ def DeletePerson(name):
             while True:
                 all_face_encodings = pickle.load(f)
         except EOFError:
-            pass
+            return -1 #pass
 
     all_face_encodings.pop(name)
     print(str(all_face_encodings))
 
     with open(DatabaseFile, 'wb') as f1:
         pickle.dump(all_face_encodings, f1)
+
+    return 1
 
     '''
     with open('dataset_faces.dat', 'rb') as f2:
@@ -139,11 +146,10 @@ def BakeFaceEncoding():
     #########checking for OP#############
     if (not name) or (not imageFile):
         print("Rolling Back From BackFaceEncoding!")
-        return
+        return 3
     #####################################
 
     print(f"Backing Face-Encoding with Received photo & name.")
-
     dir = imageFile
     person = name
 
@@ -155,12 +161,21 @@ def BakeFaceEncoding():
 
     if no_of_faces == 0:
         print("No Faces Found!")
+        return 0
     if no_of_faces == 1:
         face_encodings[person] = face_recognition.face_encodings(face)[0]
+        try:
+            with open(DatabaseFile, 'a+') as f:
+                pickle.dump(face_encodings, f)
+        except IOError:
+            return -1
+
+        return 1
     else:
         print(person + "_img contains multiple faces!")
+        return 2
 
-    return face_encodings
+
 
 
 # File Transfer
