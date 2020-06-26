@@ -3,6 +3,11 @@ from jnius import autoclass
 import pickle
 import socket
 import os
+
+import face_recognition
+import os
+import pickle
+
 Socket = autoclass("java.net.Socket")
 DOS = autoclass("java.io.DataInputStream")
 System = autoclass("java.lang.System")
@@ -20,86 +25,112 @@ Array = autoclass("java.lang.reflect.Array")
 DataInputStream = autoclass("java.io.DataInputStream")
 Integer = autoclass("java.lang.Integer")
 
-#Creating Common Connection Settings for all Connection made in this script.
+
+# Creating Common Connection Settings for all Connection made in this script.
 IP = "192.168.43.205"
 Port = 1998
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
 
-#####################################################Listning for Database_operation
-#move this set of code to top most and modify app's for sending  the "op" byte first.
+DatabaseFile = 'dataset_faces.dat'
+imageDir = "Photos/"
+
 def SelectOp(op):
     switcher = {
-        1: "APPEND",
-        2: "DELETE",
+        '1': "APPEND",
+        '2': "DELETE",
     }
-    return(switcher.get(op, "INVALID_OP!"))
-
-def DeletePerson(name):
-
-    def DeletePerson(name):
-        with open('dataset_faces.dat', 'rb') as f:
-            try:
-                while True:
-                    all_face_encodings = pickle.load(f)
-            except EOFError:
-                pass
-
-        all_face_encodings.pop(name)
-        print(str(all_face_encodings))
-
-        with open('dataset_faces.dat', 'wb') as f1:
-            pickle.dump(all_face_encodings, f1)
-
-        '''
-        with open('dataset_faces.dat', 'rb') as f2:
-            try:
-                while True:
-                    temp_face_encodings = pickle.load(f2)
-                    print(str(temp_face_encodings))
-
-            except EOFError:
-                pass
-        '''
-        # Example:
-        # DeletePerson('madhavi')
+    return (switcher.get(op, "INVALID_OP!"))
 
 def Server():
-    #start listning for any operations from client.
+    # start listening for any operations from client.
     s.listen(999)
     print("socket is listening...")
 
-    #Always lokking to connections.
+    # Always looking to connections.
     while True:
         clientsocket, address = s.accept()
         print("Server Connected With Client...")
 
         received_op = clientsocket.recv(1).decode('utf-8')
-        print("Operation is : "+ received_op)
+        print("Operation is : " + received_op)
 
-        #if operation is APPEND
-        if SelectOp(received_op) == "1":
-            with open('dataset_faces.dat', 'a+') as f:
-                #bake face_encoding with photo and name
-                #save it into face_encoding
-                #and store it using below line
-                #using code in TakeSamples.py in ubuntu
-
-                pickle.dump(face_encoding, f)
+        # if operation is APPEND
+        if SelectOp(received_op) == "APPEND":
+            face_encodings = BakeFaceEncoding()
+            with open(DatabaseFile, 'a+') as f:
+                pickle.dump(face_encodings, f)
 
         # if operation is DELETE
-        if SelectOp(received_op) == "2":
-            DeletePerson()
+        if SelectOp(received_op) == "DELETE":
+            s.listen(999)
+            print("socket is listening...")
+            clientsocket, address = s.accept()
+            print(f"Connection from {address} has been established!")
+
+            # reads first 2 bytes for name's length in bytes
+            name_length = clientsocket.recv(2).decode()
+            print("DeleteName_length is:" + name_length)
+            # recieve name
+            delete_name = clientsocket.recv(int(name_length)).decode()
+            print("DeleteName is :" + delete_name)
+            clientsocket.close()
+
+            DeletePerson(delete_name)
+
+        #close operation clientsocket.
         clientsocket.close()
 
+def DeletePerson(name):
+    with open(DatabaseFile, 'rb') as f:
+        try:
+            while True:
+                all_face_encodings = pickle.load(f)
+        except EOFError:
+            pass
+
+    all_face_encodings.pop(name)
+    print(str(all_face_encodings))
+
+    with open(DatabaseFile, 'wb') as f1:
+        pickle.dump(all_face_encodings, f1)
+
+    '''
+    with open('dataset_faces.dat', 'rb') as f2:
+        try:
+            while True:
+                temp_face_encodings = pickle.load(f2)
+                print(str(temp_face_encodings))
+
+        except EOFError:
+            pass
+    '''
+    # Example:
+    # DeletePerson('madhavi')
 
 def BakeFaceEncoding():
     name, imageFile = RecieveNamePhoto()
 
+    dir = imageFile
+    person = name
+
+    face_encodings = {}
+    face = face_recognition.load_image_file(dir)
+    #calculate no. of face in sample-image
+    face_bounding_boxes = face_recognition.face_locations(face)
+    no_of_faces = len(face_bounding_boxes)
+
+    if no_of_faces == 0:
+        print("No Faces Found!")
+    if no_of_faces == 1:
+        face_encodings[person] = face_recognition.face_encodings(face)[0]
+    else:
+        print(person + "_img contains multiple faces!")
+
+    return face_encodings
 
 
-
-#File Transfer
+# File Transfer
 def RecieveNamePhoto():
     # Reading name in pure python
     ############################################################1st python's socket connection.
@@ -143,24 +174,24 @@ def RecieveNamePhoto():
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
-    imageDir = "Photos/"
+
     if not os.path.exists(imageDir):
         print("Dir not found creating dir...")
         os.mkdir(imageDir)
 
     # reading photo
     length = 0
-    with open(imageDir+name+".png", 'wb') as f:
+    with open(imageDir + name + ".png", 'wb') as f:
         while length < photo_length_int:
             bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
             length += len(bytes)
             f.write(bytes)
     f.close()
     clientsocket.close()
-    #s.close()
+    # s.close()
 
-    imageFile = imageDir+name+".png"
-    return name,imageFile
+    imageFile = imageDir + name + ".png"
+    return name, imageFile
 
 def SendNamePhoto(name):
     s.listen(999)
@@ -168,17 +199,16 @@ def SendNamePhoto(name):
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
-    #send name_delimeter
+    # send name_delimeter
     clientsocket.sendall("?name\n".encode('utf-8'))
-    #send name
+    # send name
     name1 = name + "\n"
     print("Name was sent succesfully.")
     clientsocket.sendall(name1.encode('utf-8'))
 
-
-    #send image_delimeter
+    # send image_delimeter
     clientsocket.sendall("?start\n".encode('utf-8'))
-    #send image
+    # send image
     imageFile = open("hand.jpg", 'rb')
     Imagecontent = imageFile.read()
     imageSize = len(Imagecontent)
@@ -191,7 +221,7 @@ def SendNamePhoto(name):
     clientsocket.sendall("?imageFile\n".encode('utf-8'))
     clientsocket.close()
 
-    #Creating new Connetion to send music
+    # Creating new Connetion to send music
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
@@ -204,56 +234,13 @@ def SendNamePhoto(name):
     print("Image File Content is : " + str(Imagecontent))
     print("Image was sent succesfully.")
 
+    # receive success ACK
 
 
-
-    #receive success ACK
-   # message = clientsocket.recv(2)
-    #if message == "ok":
-     #   print("ACK received.")
+# message = clientsocket.recv(2)
+# if message == "ok":
+#   print("ACK received.")
 
 RecieveNamePhoto()
-#SendName("sarvesh")
-#Server()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# SendName("sarvesh")
+# Server()
