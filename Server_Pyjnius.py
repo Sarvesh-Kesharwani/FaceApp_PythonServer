@@ -1,11 +1,7 @@
-import struct
-
 import numpy as np
 from jnius import autoclass
 import pickle
 import socket
-
-from numpy import byte
 
 Socket = autoclass("java.net.Socket")
 DOS = autoclass("java.io.DataInputStream")
@@ -68,27 +64,38 @@ def DeletePerson(name):
         # Example:
         # DeletePerson('madhavi')
 
-def modifyDatabase(op):
+def Server():
+    #start listning for any operations from client.
+    s.listen(999)
+    print("socket is listening...")
+
+    #Always lokking to connections.
     while True:
-        s.listen(999)
-        print("socket is listening...")
         clientsocket, address = s.accept()
-        print(f"Connection from {address} has been established!")
+        print("Server Connected With Client...")
 
-        received_op = clientsocket.recv(1).decode()
+        received_op = clientsocket.recv(1).decode('utf-8')
+        print("Operation is : "+ received_op)
 
-        if SelectOp(received_op) == "APPEND":
+        #if operation is APPEND
+        if SelectOp(received_op) == "1":
             with open('dataset_faces.dat', 'a+') as f:
                 #bake face_encoding with photo and name
                 #save it into face_encoding
                 #and store it using below line
                 #using code in TakeSamples.py in ubuntu
 
-                #or just append incoming face_encoding from iputerstream
                 pickle.dump(face_encoding, f)
 
-        if SelectOp(received_op) == "DELETE":
+        # if operation is DELETE
+        if SelectOp(received_op) == "2":
             DeletePerson()
+        clientsocket.close()
+
+
+def BakeFaceEncoding():
+    name = ReciveName()
+    photoDir = RecievePhoto()
 
 #File Transfer
 def ReciveName():
@@ -106,9 +113,14 @@ def ReciveName():
     name = clientsocket.recv(int(name_length)).decode()
     print("Name is :" + name)
     clientsocket.close()
-    ################################################################2nd python's socket connection.
+
+    return name
 
 def RecievePhoto():
+    ################################################################2nd python's socket connection.
+
+    name = ReciveName()
+
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
@@ -136,7 +148,7 @@ def RecievePhoto():
 
     # reading photo
     length = 0
-    with open('image.png', 'wb') as f:
+    with open("Photos//"+name+".png", 'wb') as f:
         while length < photo_length_int:
             bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
             length += len(bytes)
@@ -145,7 +157,7 @@ def RecievePhoto():
     clientsocket.close()
     #s.close()
 
-def SendName(name):
+def SendNamePhoto(name):
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
@@ -205,9 +217,10 @@ def SendName(name):
 
 
 
-ReciveName()
-RecievePhoto()
-SendName("sarvesh")
+#ReciveName()
+#RecievePhoto()
+#SendName("sarvesh")
+Server()
 
 
 
