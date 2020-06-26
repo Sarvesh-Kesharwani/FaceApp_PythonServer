@@ -37,6 +37,7 @@ imageDir = "Photos/"
 
 def SelectOp(op):
     switcher = {
+        '0': "CONTINUE",
         '1': "APPEND",
         '2': "DELETE",
     }
@@ -58,28 +59,44 @@ def Server():
         # if operation is APPEND
         if SelectOp(received_op) == "APPEND":
             face_encodings = BakeFaceEncoding()
+
+            if not face_recognition:
+                continue
             with open(DatabaseFile, 'a+') as f:
                 pickle.dump(face_encodings, f)
 
         # if operation is DELETE
         if SelectOp(received_op) == "DELETE":
-            s.listen(999)
-            print("socket is listening...")
-            clientsocket, address = s.accept()
-            print(f"Connection from {address} has been established!")
-
-            # reads first 2 bytes for name's length in bytes
-            name_length = clientsocket.recv(2).decode()
-            print("DeleteName_length is:" + name_length)
-            # recieve name
-            delete_name = clientsocket.recv(int(name_length)).decode()
-            print("DeleteName is :" + delete_name)
-            clientsocket.close()
-
-            DeletePerson(delete_name)
+            DeleteOP()
 
         #close operation clientsocket.
         clientsocket.close()
+
+def DeleteOP():
+    # Reading Op byte
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    if not SelectOp(clientsocket.recv(1).decode('utf-8')) == "CONTINUE":
+        return
+
+    #Read name to delete
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    # reads first 2 bytes for name's length in bytes
+    name_length = clientsocket.recv(2).decode()
+    print("DeleteName_length is:" + name_length)
+    # recieve name
+    delete_name = clientsocket.recv(int(name_length)).decode()
+    print("DeleteName is :" + delete_name)
+    clientsocket.close()
+
+    DeletePerson(delete_name)
 
 def DeletePerson(name):
     with open(DatabaseFile, 'rb') as f:
@@ -111,6 +128,11 @@ def DeletePerson(name):
 def BakeFaceEncoding():
     name, imageFile = RecieveNamePhoto()
 
+    #########checking for OP#############
+    if (not name)  or (not imageFile):
+        return
+    #####################################
+
     dir = imageFile
     person = name
 
@@ -132,6 +154,16 @@ def BakeFaceEncoding():
 
 # File Transfer
 def RecieveNamePhoto():
+    # Reading Op byte
+    s.listen(999)
+    print("socket is listening...")
+    clientsocket, address = s.accept()
+    print(f"Connection from {address} has been established!")
+
+    if not SelectOp(clientsocket.recv(1).decode('utf-8')) == "CONTINUE":
+        return
+
+
     # Reading name in pure python
     ############################################################1st python's socket connection.
     s.listen(999)
