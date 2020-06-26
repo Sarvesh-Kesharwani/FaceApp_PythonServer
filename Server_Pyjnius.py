@@ -29,19 +29,22 @@ def SelectOp(op):
 
 
 def Server():
+    jump = False
     # start listening for any operations from client.
     s.listen(999)
     print("socket is listening...")
 
     # Always looking to connections.
     while True:
-        print("Waiting for next operations...")
-        clientsocket, address = s.accept()
-        print("Server Connected With Client...")
+        if jump == False:
+            print("Waiting for next operations...")
+            clientsocket, address = s.accept()
+            print("Server Connected With Client...")
 
-        received_op = clientsocket.recv(1).decode('utf-8')
-        print("Operation is : " + received_op)
-        clientsocket.close()
+            received_op = clientsocket.recv(1).decode('utf-8')
+            print("Operation is : " + received_op)
+            clientsocket.close()
+            jump = False
 
         # if operation is APPEND
         if SelectOp(received_op) == "APPEND":
@@ -65,16 +68,20 @@ def Server():
                 # for listning to next operation sent by user.
                 continue
             if result == -1:
-                CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                CSckt.sendall("Database-Resource is not available!\n".encode('utf-8'))
                 continue
             if result == 0:
-                CSckt.sendall("Database-Resource is not available!\n".encode('utf-8'))
+                CSckt.sendall("No Faces Found!\n".encode('utf-8'))
+                jump = True
+                received_op = '1'
                 continue
             if result == 1:
                 CSckt.sendall("Person Added Successfully.\n".encode('utf-8'))
                 continue
             if result == 2:
                 CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                jump = True
+                received_op = '1'
                 continue
             CSckt.close()
 
@@ -248,6 +255,11 @@ def RecieveNamePhoto():
     print("socket is listening...")
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
+
+    #delimter for receiving photo
+    if not clientsocket.recv(6).decode() == "?image":
+        return None, None
+    print("Image delimeter recieved successfully.")
 
     if not os.path.exists(imageDir):
         print("Dir not found creating dir...")
