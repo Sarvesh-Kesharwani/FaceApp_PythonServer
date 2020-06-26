@@ -162,7 +162,7 @@ def SendName(name):
     #send image_delimeter
     clientsocket.sendall("?start\n".encode('utf-8'))
     #send image
-    imageFile = open("face.jpg", 'rb')
+    imageFile = open("hand.jpg", 'rb')
     Imagecontent = imageFile.read()
     imageSize = len(Imagecontent)
     print("ImageSize is:" + str(imageSize))
