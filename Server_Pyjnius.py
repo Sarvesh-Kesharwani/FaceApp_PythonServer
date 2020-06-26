@@ -8,7 +8,7 @@ import pickle
 
 
 # Creating Common Connection Settings for all Connection made in this script.
-IP = "192.168.0.101"
+IP = "192.168.43.205"
 Port = 1998
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
@@ -46,6 +46,7 @@ def Server():
             print("Append-Operation is being done...")
             result = BakeFaceEncoding()
 
+            clientsocket.sendall("?ACK\n".encode('utf-8'))
             if result == 3:
                 # it means user didn't ADD any person,
                 # just went to some other menu option so continue server loop
@@ -69,6 +70,7 @@ def Server():
             print("Delete-Operation is being done...")
             result = DeleteOP()
 
+            clientsocket.sendall("?ACK\n".encode('utf-8'))
             if result == -1:
                 clientsocket.sendall("Database-Resource is not available!\n".encode('utf-8'))
                 continue
@@ -241,7 +243,7 @@ def RecieveNamePhoto():
     length = 0
     with open(imageDir + name + ".png", 'wb') as f:
         while length < photo_length_int:
-            bytes = clientsocket.recv(Math.min(1024, (photo_length_int - length)))
+            bytes = clientsocket.recv(min(1024, (photo_length_int - length)))
             length += len(bytes)
             f.write(bytes)
     f.close()
