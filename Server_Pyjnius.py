@@ -4,7 +4,7 @@ import pickle
 import socket
 import os
 
-import face_recognition
+# import face_recognition
 import os
 import pickle
 
@@ -25,15 +25,15 @@ Array = autoclass("java.lang.reflect.Array")
 DataInputStream = autoclass("java.io.DataInputStream")
 Integer = autoclass("java.lang.Integer")
 
-
 # Creating Common Connection Settings for all Connection made in this script.
-IP = "192.168.43.205"
+IP = "192.168.0.101"
 Port = 1998
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((IP, Port))
 
 DatabaseFile = 'dataset_faces.dat'
 imageDir = "Photos/"
+
 
 def SelectOp(op):
     switcher = {
@@ -42,6 +42,7 @@ def SelectOp(op):
         '2': "DELETE",
     }
     return (switcher.get(op, "INVALID_OP!"))
+
 
 def Server():
     # start listening for any operations from client.
@@ -58,6 +59,7 @@ def Server():
 
         # if operation is APPEND
         if SelectOp(received_op) == "APPEND":
+            print("Append-Operation is being done...")
             face_encodings = BakeFaceEncoding()
 
             if not face_recognition:
@@ -67,10 +69,12 @@ def Server():
 
         # if operation is DELETE
         if SelectOp(received_op) == "DELETE":
+            print("Delete-Operation is being done...")
             DeleteOP()
 
-        #close operation clientsocket.
+        # close operation clientsocket.
         clientsocket.close()
+
 
 def DeleteOP():
     # Reading Op byte
@@ -80,9 +84,11 @@ def DeleteOP():
     print(f"Connection from {address} has been established!")
 
     if not SelectOp(clientsocket.recv(1).decode('utf-8')) == "CONTINUE":
+        print("Rolling Back From DeleteOP!")
         return
 
-    #Read name to delete
+    print("Delete-Operation is being done...")
+    # Read name to delete
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
@@ -97,6 +103,7 @@ def DeleteOP():
     clientsocket.close()
 
     DeletePerson(delete_name)
+
 
 def DeletePerson(name):
     with open(DatabaseFile, 'rb') as f:
@@ -125,20 +132,24 @@ def DeletePerson(name):
     # Example:
     # DeletePerson('madhavi')
 
+
 def BakeFaceEncoding():
     name, imageFile = RecieveNamePhoto()
 
     #########checking for OP#############
-    if (not name)  or (not imageFile):
+    if (not name) or (not imageFile):
+        print("Rolling Back From BackFaceEncoding!")
         return
     #####################################
+
+    print(f"Backing Face-Encoding with Received photo & name.")
 
     dir = imageFile
     person = name
 
     face_encodings = {}
     face = face_recognition.load_image_file(dir)
-    #calculate no. of face in sample-image
+    # calculate no. of face in sample-image
     face_bounding_boxes = face_recognition.face_locations(face)
     no_of_faces = len(face_bounding_boxes)
 
@@ -160,9 +171,10 @@ def RecieveNamePhoto():
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
-    if not SelectOp(clientsocket.recv(1).decode('utf-8')) == "CONTINUE":
+    OPbyte = clientsocket.recv(1).decode()
+    print("Recieved OpByte is: "+ OPbyte)
+    if not SelectOp(str(OPbyte)) == "CONTINUE":
         return
-
 
     # Reading name in pure python
     ############################################################1st python's socket connection.
@@ -206,7 +218,6 @@ def RecieveNamePhoto():
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
-
     if not os.path.exists(imageDir):
         print("Dir not found creating dir...")
         os.mkdir(imageDir)
@@ -224,6 +235,7 @@ def RecieveNamePhoto():
 
     imageFile = imageDir + name + ".png"
     return name, imageFile
+
 
 def SendNamePhoto(name):
     s.listen(999)
@@ -273,6 +285,6 @@ def SendNamePhoto(name):
 # if message == "ok":
 #   print("ACK received.")
 
-RecieveNamePhoto()
+# RecieveNamePhoto()
 # SendName("sarvesh")
-# Server()
+Server()
