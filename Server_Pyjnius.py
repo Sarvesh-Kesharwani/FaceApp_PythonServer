@@ -41,30 +41,42 @@ def Server():
 
         received_op = clientsocket.recv(1).decode('utf-8')
         print("Operation is : " + received_op)
+        clientsocket.close()
 
         # if operation is APPEND
         if SelectOp(received_op) == "APPEND":
             print("Append-Operation is being done...")
             result = BakeFaceEncoding()
 
-            clientsocket.sendall("?ACK\n".encode('utf-8'))
+            #create connection for sending ACK
+            #Warning! hide the navMenu in app until this connection successfully sends ACK
+            # or closes connection otherwise it will stuck here for making a connection to send ack
+            #and no one will listen in app
+            s.listen(999)
+            print("socket is listening...")
+            CSckt, CAddress = s.accept()
+            print(f"Connection from {address} has been established!")
+
+
+            CSckt.sendall("?ACK\n".encode('utf-8'))
             if result == 3:
                 # it means user didn't ADD any person,
                 # just went to some other menu option so continue server loop
                 # for listning to next operation sent by user.
                 continue
             if result == -1:
-                clientsocket.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
                 continue
             if result == 0:
-                clientsocket.sendall("Database-Resource is not available!\n".encode('utf-8'))
+                CSckt.sendall("Database-Resource is not available!\n".encode('utf-8'))
                 continue
             if result == 1:
-                clientsocket.sendall("Person Added Successfully.\n".encode('utf-8'))
+                CSckt.sendall("Person Added Successfully.\n".encode('utf-8'))
                 continue
             if result == 2:
-                clientsocket.sendall("Multiple Faces Found!\n".encode('utf-8'))
+                CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
                 continue
+            CSckt.close()
 
         # if operation is DELETE
         if SelectOp(received_op) == "DELETE":
@@ -80,8 +92,7 @@ def Server():
                 print("Delete-Operation is done successfully.")
                 continue
 
-        # close operation clientsocket.
-        clientsocket.close()
+
 
 
 def DeleteOP():
