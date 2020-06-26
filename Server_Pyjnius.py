@@ -177,11 +177,9 @@ def BakeFaceEncoding():
         print(person + "_img contains multiple faces!")
         return 2
 
-
-
-
 # File Transfer
 def RecieveNamePhoto():
+    print("Reading Name &Photo...")
     # Reading Op byte
     s.listen(999)
     print("socket is listening...")
