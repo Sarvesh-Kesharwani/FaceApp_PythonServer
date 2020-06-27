@@ -207,7 +207,7 @@ def BakeFaceEncoding():
             print("DatabaseFile not found creating it...")
             os.mkdir(DatabaseFile)
         try:
-            with open(DatabaseFile, 'a+') as f:
+            with open(DatabaseFile, 'ab') as f:
                 pickle.dump(face_encodings, f)
                 f.close()
         except IOError:
