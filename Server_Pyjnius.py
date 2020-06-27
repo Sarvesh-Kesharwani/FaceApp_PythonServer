@@ -231,7 +231,8 @@ def RecieveNamePhoto():
     print(f"Connection from {address} has been established!")
 
     # checking name delimeter
-    if not str(clientsocket.recv(5).decode()) == "?NAME":
+    temp = str(clientsocket.recv(5).decode())
+    if (not temp == "?NAME") or (not SelectOp(temp[0]) == "APPEND"):
         return None, None
 
     # reads first 2 bytes for name's length in bytes
