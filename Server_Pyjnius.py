@@ -233,7 +233,9 @@ def RecieveNamePhoto():
     # checking name delimeter
     temp = str(clientsocket.recv(5).decode())
     print("Temp is: "+temp)
-    if (not temp == "?NAME") or (not SelectOp(temp[4]) == "APPEND"):
+    if temp != "?NAME":
+        return None, None
+    if SelectOp(temp[4]) != "APPEND":
         return None, None
 
     # reads first 2 bytes for name's length in bytes

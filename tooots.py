@@ -1,3 +1,7 @@
 name = "?NAME"
+temp = 1
 
-print(name[0])
+if (name != "?NAME") or (temp != 2):
+     print("Fail")
+else:
+    print("Success")
