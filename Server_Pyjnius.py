@@ -74,6 +74,7 @@ def Server():
             #Warning! hide the navMenu in app until this connection successfully sends ACK
             # or closes connection otherwise it will stuck here for making a connection to send ack
             #and no one will listen in app
+            #recieveACK function handles this connection in APP
             s.listen(999)
             print("socket is listening...")
             CSckt, CAddress = s.accept()
