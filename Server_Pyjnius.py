@@ -346,11 +346,6 @@ def SendNamePhoto(name):
 
     # receive success ACK
 
-
-# message = clientsocket.recv(2)
-# if message == "ok":
-#   print("ACK received.")
-
 # RecieveNamePhoto()
 # SendName("sarvesh")
 Server()

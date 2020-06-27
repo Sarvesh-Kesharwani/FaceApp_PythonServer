@@ -1,1 +1,3 @@
-print(min(45,89))
+name = "?NAME"
+
+print(name[0])
