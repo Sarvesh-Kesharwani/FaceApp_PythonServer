@@ -5,11 +5,14 @@ import os
 #import face_recognition
 import os
 import pickle
+from jnius import autoclass
+
+Math = autoclass("java.lang.Math")
 
 ##########################################################
 ##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
-IP = "192.168.43.205"
+IP = "192.168.0.100"
 Port = 1998
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,8 +45,23 @@ def Server():
             clientsocket, address = s.accept()
             print("Server Connected With Client...")
 
+            # operation delimiter
+            sayit = False
+            if not clientsocket.recv(4).decode('utf-8') == "?OPE":
+                print("Select a Operation!")
+                sayit = True
+                continue
+            sayit = False
+            print("sending Operation Selected Successfully.....")
+            print("Received ?OPE delimiter.")
+
             received_op = clientsocket.recv(1).decode('utf-8')
             print("Operation is : " + received_op)
+
+            if sayit == True:
+                clientsocket.sendall("Select a Operation\n".encode('utf-8'))
+            else:
+                clientsocket.sendall("Operation Selected Successfully.\n".encode('utf-8'))
             clientsocket.close()
             jump = False
 
@@ -78,6 +96,7 @@ def Server():
                 continue
             if result == 1:
                 CSckt.sendall("Person Added Successfully.\n".encode('utf-8'))
+                print("Person Added Successfully.")
                 continue
             if result == 2:
                 CSckt.sendall("Multiple Faces Found!\n".encode('utf-8'))
@@ -231,6 +250,7 @@ def RecieveNamePhoto():
     # reading photo delimeter
     if not str(clientsocket.recv(6).decode()) == "?IMAGE":
         return None, None
+    print("IMAGE delimiter recieved successfully.")
 
     # reading photo length
     photo_length_list = []
@@ -250,13 +270,15 @@ def RecieveNamePhoto():
     ################################################################3rd python's socket connection.
     s.listen(999)
     print("socket is listening...")
-    clientsocket, address = s.accept()
+    clientsocket3, address = s.accept()
     print(f"Connection from {address} has been established!")
 
     #delimter for receiving photo
-    if not clientsocket.recv(6).decode() == "?image":
+    temp = clientsocket3.recv(6).decode()
+    if not temp == "?image":
         return None, None
-    print("Image delimeter recieved successfully.")
+    print("Image delimiter recieved successfully.")
+    print("Image delimiter is:"+str(temp))
 
     if not os.path.exists(imageDir):
         print("Dir not found creating dir...")
@@ -264,13 +286,16 @@ def RecieveNamePhoto():
 
     # reading photo
     length = 0
-    with open(imageDir + name + ".png", 'wb') as f:
+    with open(imageDir + name + ".png", 'wb') as file:
         while length < photo_length_int:
-            bytes = clientsocket.recv(min(1024, (photo_length_int - length)))
-            length += len(bytes)
-            f.write(bytes)
-    f.close()
-    clientsocket.close()
+            bytes = clientsocket3.recv(Math.min(1024, (photo_length_int - length)))
+            length = length+len(bytes)
+            file.write(bytes)
+            #print("Byte Length is: "+str(len(bytes)))
+            #print("Image Wrote Successfully.")
+        file.close()
+        print("Photo wrote successfully.")
+    clientsocket3.close()
     # s.close()
 
     imageFile = imageDir + name + ".png"
