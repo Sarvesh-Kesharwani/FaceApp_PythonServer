@@ -48,11 +48,9 @@ def Server():
             # operation delimiter
             sayit = False
             if not clientsocket.recv(4).decode('utf-8') == "?OPE":
-                print("Select a Operation!")
                 sayit = True
                 continue
             sayit = False
-            print("sending Operation Selected Successfully.....")
             print("Received ?OPE delimiter.")
 
             received_op = clientsocket.recv(1).decode('utf-8')
@@ -60,8 +58,10 @@ def Server():
 
             if sayit == True:
                 clientsocket.sendall("Select a Operation\n".encode('utf-8'))
+                print("Select a Operation!")
             else:
                 clientsocket.sendall("Operation Selected Successfully.\n".encode('utf-8'))
+                print("sending Operation Selected Successfully.....")
             clientsocket.close()
             jump = False
 
@@ -232,7 +232,8 @@ def RecieveNamePhoto():
 
     # checking name delimeter
     temp = str(clientsocket.recv(5).decode())
-    if (not temp == "?NAME") or (not SelectOp(temp[0]) == "APPEND"):
+    print("Temp is: "+temp)
+    if (not temp == "?NAME") or (not SelectOp(temp[4]) == "APPEND"):
         return None, None
 
     # reads first 2 bytes for name's length in bytes
