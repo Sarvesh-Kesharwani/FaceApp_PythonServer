@@ -6,7 +6,8 @@ import os
 import os
 import pickle
 
-
+##########################################################
+##########################################################
 # Creating Common Connection Settings for all Connection made in this script.
 IP = "192.168.43.205"
 Port = 1998
@@ -18,10 +19,10 @@ s.bind((IP, Port))
 DatabaseFile = 'dataset_faces.dat'
 imageDir = "Photos/"
 
-
+##########################################################
+##########################################################
 def SelectOp(op):
     switcher = {
-        '0': "CONTINUE",
         '1': "APPEND",
         '2': "DELETE",
     }
@@ -104,25 +105,20 @@ def Server():
 
 def DeleteOP():
     # Reading Op byte
-    s.listen(999)
-    print("socket is listening...")
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
-
-    if not SelectOp(clientsocket.recv(1).decode('utf-8')) == "CONTINUE":
-        print("Rolling Back From DeleteOP!")
-        return
-
     print("Delete-Operation is being done...")
+
     # Read name to delete
     s.listen(999)
     print("socket is listening...")
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
 
+    # receive name delimeter
+    #-------------------------------------#
     # reads first 2 bytes for name's length in bytes
     name_length = clientsocket.recv(2).decode()
     print("DeleteName_length is:" + name_length)
+
     # recieve name
     delete_name = clientsocket.recv(int(name_length)).decode()
     print("DeleteName is :" + delete_name)
@@ -132,20 +128,21 @@ def DeleteOP():
 
 
 def DeletePerson(name):
-    with open(DatabaseFile, 'rb') as f:
+
+    try:
+        f = open(DatabaseFile, 'rb')
+        all_face_encodings = pickle.load(f)
+        all_face_encodings.pop(name)
+        print(str(all_face_encodings))
+        f.close()
         try:
-            while True:
-                all_face_encodings = pickle.load(f)
-        except EOFError:
-            return -1 #pass
-
-    all_face_encodings.pop(name)
-    print(str(all_face_encodings))
-
-    with open(DatabaseFile, 'wb') as f1:
-        pickle.dump(all_face_encodings, f1)
-
-    return 1
+            with open(DatabaseFile, 'wb') as f1:
+                pickle.dump(all_face_encodings, f1)
+                f1.close()
+        except IOError:
+            return -1
+    except IOError:
+        return -1
 
     '''
     with open('dataset_faces.dat', 'rb') as f2:
@@ -192,6 +189,7 @@ def BakeFaceEncoding():
         try:
             with open(DatabaseFile, 'a+') as f:
                 pickle.dump(face_encodings, f)
+                f.close()
         except IOError:
             return -1
 
@@ -204,15 +202,6 @@ def BakeFaceEncoding():
 def RecieveNamePhoto():
     print("Reading Name & Photo...")
     # Reading Op byte
-    s.listen(999)
-    print("socket is listening...")
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established!")
-
-    OPbyte = clientsocket.recv(1).decode()
-    print("Recieved OpByte is: "+ OPbyte)
-    if not SelectOp(str(OPbyte)) == "CONTINUE":
-        return
 
     # Reading name in pure python
     ############################################################1st python's socket connection.
@@ -220,6 +209,10 @@ def RecieveNamePhoto():
     print("socket is listening...")
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
+
+    # checking name delimeter
+    if not str(clientsocket.recv(5).decode()) == "?NAME":
+        return None, None
 
     # reads first 2 bytes for name's length in bytes
     name_length = clientsocket.recv(2).decode()
@@ -234,6 +227,10 @@ def RecieveNamePhoto():
     print("socket is listening...")
     clientsocket, address = s.accept()
     print(f"Connection from {address} has been established!")
+
+    # reading photo delimeter
+    if not str(clientsocket.recv(6).decode()) == "?IMAGE":
+        return None, None
 
     # reading photo length
     photo_length_list = []
