@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 
 def DeletePerson(name):
-    with open('dataset_faces.dat', 'rb') as f:
+    with open('dataset_faces_original.dat', 'rb') as f:
         try:
             while True:
                 all_face_encodings = pickle.load(f)

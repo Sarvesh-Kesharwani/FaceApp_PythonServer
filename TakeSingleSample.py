@@ -17,7 +17,7 @@ def TakeSamples(dir,person):
     else:
         print(person + "_img contains multiple faces!")
 
-    with open('dataset_faces.dat', 'wb') as f:
+    with open('dataset_faces_original.dat', 'wb') as f:
         pickle.dump(face_encodings, f)
 
 
